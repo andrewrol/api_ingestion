@@ -1,9 +1,12 @@
 import datetime
+import os
 
 from abc import ABC, abstractmethod
 from typing import List
 from writers import DataWriter
 from apis import UserListApi
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 class DataIngestor(ABC):
 
@@ -13,16 +16,16 @@ class DataIngestor(ABC):
         self._checkpoint = self._load_checkpoint()
 
     @property
-    def _checkpoint_filesname(self) -> str:
-        return f"{self.__class__.__name__}.checkpoint"
+    def _checkpoint_filesname_path(self) -> str:
+        return f"{os.path.join(BASE_DIR, self.__class__.__name__)}.checkpoint"
 
     def _write_checkpoint(self):
-        with open(self._checkpoint_filesname, "w") as f:
+        with open(self._checkpoint_filesname_path, "w") as f:
             f.write(f"{self._checkpoint}")
 
     def _load_checkpoint(self) -> datetime:
         try:
-            with open(self._checkpoint_filesname, "r") as f:
+            with open(self._checkpoint_filesname_path, "r") as f:
                 return f.read()
         except FileNotFoundError:
             return None
